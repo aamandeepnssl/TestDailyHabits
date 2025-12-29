@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    
     <style>
         :root { 
             --bg: #121212; 
@@ -30,16 +29,28 @@
         }
 
         .container { max-width: 650px; margin: 0 auto; }
-        
         h1.main-title { text-align: center; color: var(--orange); font-size: 2.5rem; margin-bottom: 5px; letter-spacing: 3px; }
         
         .motto { 
             text-align: center; 
             font-size: 1.2rem; 
             color: var(--olive); 
-            margin-bottom: 30px; 
+            margin-bottom: 10px; 
             font-weight: 700;
             letter-spacing: 2px;
+        }
+
+        /* Quote Styling */
+        #quoteDisplay {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+            margin-bottom: 30px;
+            min-height: 45px;
+            font-size: 0.9rem;
+            padding: 0 30px;
+            line-height: 1.4;
+            text-transform: none; /* Quotes look better in natural case */
         }
         
         .date-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 15px; border-left: 5px solid var(--olive); }
@@ -59,7 +70,6 @@
         .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: bold; padding: 5px 10px; transition: 0.3s; }
         .del-btn:hover { color: #fff; background: var(--danger); border-radius: 3px; }
 
-        /* Custom Delete Dialog */
         #deleteModal {
             display: none;
             position: fixed;
@@ -74,13 +84,10 @@
         .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold; }
         .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; }
 
-        /* Heatmap */
         .heatmap-container { background: var(--panel); padding: 20px; margin-top: 30px; border-top: 3px solid var(--orange); }
         .heatmap-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-top: 15px; }
         .heat-square { aspect-ratio: 1; background: #1a1a1a; border-radius: 1px; }
-        .level-1 { background: #2d3319; } 
-        .level-2 { background: #4b5826; } 
-        .level-3 { background: #708238; }
+        .level-1 { background: #2d3319; } .level-2 { background: #4b5826; } .level-3 { background: #708238; }
         
         .hidden { display: none !important; }
     </style>
@@ -100,6 +107,7 @@
 <div class="container">
     <h1 class="main-title">AD'S MOMENTUM</h1>
     <p class="motto">Consistency is the only currency.</p>
+    <div id="quoteDisplay">"LOADING MOTIVATION..."</div>
 
     <div class="date-nav">
         <button class="nav-btn" onclick="changeDate(-1)">PREV</button>
@@ -142,7 +150,7 @@
 </div>
 
 <script>
-    // --- FIREBASE CONFIGURATION ---
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
             authDomain: "mydailyhabits-5b16d.firebaseapp.com",
@@ -159,6 +167,79 @@
     let currentViewingDate = new Date();
     currentViewingDate.setHours(0,0,0,0);
     let taskToDelete = null;
+
+    const momentumQuotes = [
+        "Discipline is doing what needs to be done, even if you don't want to do it.",
+        "Suffer the pain of discipline or suffer the pain of regret.",
+        "Consistency transforms average into excellence.",
+        "Show up when nobody is watching. That’s where the gap is created.",
+        "The best gift you can give your family is a stronger version of yourself.",
+        "Amateurs wait for motivation. Pros get to work.",
+        "Your habits are either your best servant or your worst master.",
+        "Happiness is found in progress, not perfection.",
+        "A healthy body is a temple; don't let the fire go out.",
+        "Speed is great, but direction is everything. Stay consistent.",
+        "Don't lower the goal, increase the effort.",
+        "Success is the sum of small efforts repeated day in and day out.",
+        "The gym isn't just about muscle; it's about proving you can't be broken.",
+        "Protect your peace. Protect your family. Protect your momentum.",
+        "It doesn't have to be fun to be effective.",
+        "A man who has no control over his spirit is like a city with broken walls.",
+        "Your family doesn't need your excuses, they need your presence.",
+        "Workout today. Future you will thank you.",
+        "If you want to move a mountain, start with the small stones.",
+        "Excellence is not an act, but a habit.",
+        "The only bad workout is the one that didn't happen.",
+        "Lead by example. Your children are watching your habits, not your words.",
+        "Intensity is the price of entry. Consistency is the price of victory.",
+        "Hard days are where the real work happens.",
+        "Be the man you wanted your father to be.",
+        "Don't count the days, make the days count.",
+        "Motivation gets you started; discipline keeps you going.",
+        "Everything you want is on the other side of consistency.",
+        "Small wins lead to big victories. Check the box.",
+        "Legacy is built in the quiet hours of the early morning.",
+        "Health is the foundation of every other success.",
+        "The struggle you are in today is developing the strength you need for tomorrow.",
+        "Focus on the process, and the results will take care of themselves.",
+        "Your potential is only limited by your consistency.",
+        "You don't find time, you make time.",
+        "Greatness is found in the things no one wants to do.",
+        "One percent better every day is 37 times better in a year.",
+        "Be obsessed with the man you are becoming.",
+        "Fatigue is the price of progress. Pay it gladly.",
+        "Don't mistake motion for progress. Stay on the mission.",
+        "A bad day is no excuse for a bad habit.",
+        "The goal is not to be better than anyone else, but your previous self.",
+        "Strength comes from what you thought you couldn't do.",
+        "Love your family, work super hard, live your passion.",
+        "The pain of the workout is nothing compared to the pain of being weak.",
+        "Consistency is the playground of winners.",
+        "Master your morning, master your life.",
+        "No one ever regretted a workout after it was finished.",
+        "You are the architect of your own momentum.",
+        "If it’s important, you’ll find a way. If not, you’ll find an excuse.",
+        "Strong fathers build strong futures.",
+        "The best project you will ever work on is you.",
+        "Discipline equals freedom.",
+        "Results happen over time, not overnight. Stay patient.",
+        "Action is the antidote to anxiety.",
+        "What you do today defines who you are tomorrow.",
+        "Sweat is just weakness leaving the body.",
+        "The grind is quiet. The success is loud.",
+        "Your family is the 'Why.' Your discipline is the 'How.'",
+        "Don't stop when you're tired, stop when you're done."
+    ];
+
+    function displayQuote() {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 0);
+        const diff = now - start;
+        const oneDay = 1000 * 60 * 60 * 24;
+        const dayOfYear = Math.floor(diff / oneDay);
+        const index = dayOfYear % momentumQuotes.length;
+        document.getElementById('quoteDisplay').innerText = `"${momentumQuotes[index]}"`;
+    }
 
     function toggleDayPicker() {
         const picker = document.getElementById('dayPicker');
@@ -203,11 +284,7 @@
         const days = Array.from(document.querySelectorAll('#dayPicker input:checked')).map(i => parseInt(i.value));
         if(!text) return;
         db.ref('habits/definitions').push({ 
-            id: Date.now(), 
-            text, 
-            recurring: isRec, 
-            days: isRec ? days : null, 
-            createdDate: formatDate(currentViewingDate) 
+            id: Date.now(), text, recurring: isRec, days: isRec ? days : null, createdDate: formatDate(currentViewingDate) 
         });
         document.getElementById('taskInput').value = "";
         document.getElementById('isRecurring').checked = false;
@@ -226,7 +303,6 @@
         const grid = document.getElementById('heatmapGrid');
         grid.innerHTML = "";
         
-        // 1. Heatmap Generation
         for (let i = 99; i >= 0; i--) {
             const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
             const key = formatDate(d);
@@ -243,36 +319,22 @@
             grid.innerHTML += `<div class="heat-square ${level}" title="${key}"></div>`;
         }
 
-        // 2. Safe Streak Calculation
-        let streak = 0; 
-        let sDate = new Date(); 
-        sDate.setHours(0,0,0,0);
+        let streak = 0; let sDate = new Date(); sDate.setHours(0,0,0,0);
         let safety = 0;
-
         if (Object.keys(defs).length > 0) {
             while (safety < 365) {
                 const key = formatDate(sDate);
                 const dow = sDate.getDay();
                 let scheduled = 0, completed = 0;
-
                 Object.values(defs).forEach(t => {
                     if ((!t.recurring && t.createdDate === key) || (t.recurring && t.days && t.days.includes(dow))) {
-                        scheduled++;
-                        if (prog[key] && prog[key][t.id]) completed++;
+                        scheduled++; if (prog[key] && prog[key][t.id]) completed++;
                     }
                 });
-
                 if (scheduled > 0) {
-                    if (completed === scheduled) {
-                        streak++;
-                    } else {
-                        break; // Streak broken
-                    }
+                    if (completed === scheduled) { streak++; } else { break; }
                 }
-                // If scheduled is 0, we don't increment streak but we don't break it either (rest day)
-                
-                sDate.setDate(sDate.getDate() - 1);
-                safety++;
+                sDate.setDate(sDate.getDate() - 1); safety++;
             }
         }
         document.getElementById('streakStat').innerText = streak + " DAYS";
@@ -281,6 +343,7 @@
     function render() {
         const dateKey = formatDate(currentViewingDate);
         document.getElementById('currentDateDisplay').innerText = currentViewingDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        displayQuote();
         
         db.ref('habits').on('value', snap => {
             const data = snap.val() || {};
@@ -294,8 +357,7 @@
                 const isToday = (!task.recurring && task.createdDate === dateKey) || (task.recurring && task.days && task.days.includes(currentViewingDate.getDay()));
                 if (isToday) {
                     total++; 
-                    const isChecked = prog[task.id] || false; 
-                    if(isChecked) done++;
+                    const isChecked = prog[task.id] || false; if(isChecked) done++;
                     listDiv.innerHTML += `
                         <div class="task-item">
                             <div style="display:flex; align-items:center; gap:15px;">
@@ -312,6 +374,5 @@
     }
     render();
 </script>
-
 </body>
 </html>
