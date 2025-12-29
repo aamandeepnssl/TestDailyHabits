@@ -1,54 +1,49 @@
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-
-<script>
-  // 1. YOUR CONFIG GOES HERE
-  const firebaseConfig = {
-    apiKey: "const firebaseConfig = {
-  apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
-  authDomain: "mydailyhabits-5b16d.firebaseapp.com",
-  databaseURL: "https://mydailyhabits-5b16d-default-rtdb.firebaseio.com",
-  projectId: "mydailyhabits-5b16d",
-  storageBucket: "mydailyhabits-5b16d.firebasestorage.app",
-  messagingSenderId: "50093682600",
-  appId: "1:50093682600:web:26644d7a3deb366ee3379d"
-};",
-    authDomain: "...",
-    databaseURL: "...",
-    projectId: "...",
-    storageBucket: "...",
-    messagingSenderId: "...",
-    appId: "..."
-  };
-
-  // 2. Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  // 3. Save progress to the cloud
-  function updateProgress() {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    const status = Array.from(checkboxes).map(c => c.checked);
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checklist Sync</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <h1>My Checklist</h1>
+    <div id="loading">Loading data from cloud...</div>
     
-    // This saves the state of all checkboxes to a path called "dailyStatus"
-    db.ref('dailyStatus').set(status);
-    
-    renderCharts(status);
-  }
+    <input type="checkbox" id="task1" onclick="saveData()"> <label>Task 1</label><br>
+    <input type="checkbox" id="task2" onclick="saveData()"> <label>Task 2</label>
 
-  // 4. Sync data from the cloud when page loads
-  db.ref('dailyStatus').on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-      data.forEach((isChecked, index) => {
-        checkboxes[index].checked = isChecked;
-      });
-      renderCharts(data);
-    }
-  });
+    <script>
+        // 2. YOUR CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
+            authDomain: "mydailyhabits-5b16d.firebaseapp.com",
+            databaseURL: "https://mydailyhabits-5b16d-default-rtdb.firebaseio.com",
+            projectId: "mydailyhabits-5b16d",
+            storageBucket: "mydailyhabits-5b16d.firebasestorage.app",
+            messagingSenderId: "50093682600",
+            appId: "1:50093682600:web:26644d7a3deb366ee3379d"
+        };
 
-  function renderCharts(statusArray) {
-    // ... insert your Chart.js logic here ...
-  }
-</script>
+        // 3. Initialize
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // 4. Save to Cloud
+        function saveData() {
+            const t1 = document.getElementById('task1').checked;
+            const t2 = document.getElementById('task2').checked;
+            db.ref('tasks').set({ task1: t1, task2: t2 });
+        }
+
+        // 5. Read from Cloud (Sync)
+        db.ref('tasks').on('value', (snapshot) => {
+            document.getElementById('loading').style.display = 'none';
+            const data = snapshot.val();
+            if(data) {
+                document.getElementById('task1').checked = data.task1;
+                document.getElementById('task2').checked = data.task2;
+            }
+        });
+    </script>
+</body>
+</html>
