@@ -3,64 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Habit Tracker</title>
+    <title>AD's Momentum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
     <style>
-        :root { --bg: #1a1a1a; --panel: #2d2d2d; --text: #e0e0e0; --olive: #708238; --orange: #ff8c00; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        :root { 
+            --bg: #121212; /* Slightly darker black */
+            --panel: #1e1e1e; 
+            --text: #ffffff; 
+            --olive: #708238; 
+            --orange: #ff8c00; 
+            --grey: #444;
+        }
+
+        body { 
+            font-family: 'Oswald', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 20px; 
+            margin: 0;
+            text-transform: uppercase; /* Oswald looks great in caps */
+            letter-spacing: 1px;
+        }
+
         .container { max-width: 600px; margin: 0 auto; }
         
+        h1.main-title {
+            text-align: center;
+            color: var(--orange);
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+        }
+
+        .motto {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--olive);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
         /* Header & Nav */
-        .date-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 15px; border-radius: 10px; border-bottom: 3px solid var(--orange); }
-        .nav-btn { background: none; border: 1px solid var(--olive); color: var(--olive); padding: 5px 15px; cursor: pointer; border-radius: 5px; }
+        .date-nav { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            background: var(--panel); 
+            padding: 15px; 
+            border-radius: 4px; /* Sharper corners look better with Oswald */
+            border-left: 5px solid var(--olive);
+        }
+
+        .nav-btn { 
+            background: var(--grey); 
+            border: none; 
+            color: white; 
+            padding: 5px 15px; 
+            cursor: pointer; 
+            font-family: 'Oswald', sans-serif;
+        }
+
+        .nav-btn:hover { background: var(--orange); }
         
         /* Stats */
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--panel); padding: 15px; border-radius: 10px; text-align: center; }
-        .stat-card span { display: block; font-size: 1.5rem; font-weight: bold; color: var(--orange); }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--panel); padding: 15px; border-radius: 4px; text-align: center; border-bottom: 3px solid var(--grey); }
+        .stat-card h3 { margin: 0; font-size: 1rem; color: var(--olive); }
+        .stat-card span { display: block; font-size: 2rem; color: var(--orange); }
 
         /* Input Section */
-        .add-box { background: var(--panel); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        .day-picker { display: flex; gap: 5px; margin: 10px 0; justify-content: space-between; }
-        .day-label { font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .add-box { background: var(--panel); padding: 20px; border-radius: 4px; margin-bottom: 20px; }
+        input[type="text"] { 
+            width: 70%; 
+            padding: 10px; 
+            background: #000; 
+            border: 1px solid var(--grey); 
+            color: white; 
+            font-family: 'Oswald', sans-serif;
+        }
+        
+        button.add-btn { 
+            padding: 10px 20px; 
+            background: var(--olive); 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            font-family: 'Oswald', sans-serif;
+        }
+
+        .day-picker { display: flex; gap: 5px; margin-top: 15px; justify-content: space-between; }
+        .day-label { font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; color: var(--olive); }
         
         /* Task List */
-        .task-item { display: flex; align-items: center; background: #333; padding: 12px; margin-bottom: 8px; border-radius: 6px; justify-content: space-between; }
-        .task-info { display: flex; align-items: center; gap: 10px; }
-        input[type="checkbox"] { accent-color: var(--orange); width: 20px; height: 20px; }
-        .del-btn { background: none; border: none; color: #ff4444; cursor: pointer; }
+        .task-item { 
+            display: flex; 
+            align-items: center; 
+            background: var(--panel); 
+            padding: 15px; 
+            margin-bottom: 10px; 
+            justify-content: space-between;
+            border-right: 4px solid var(--grey);
+        }
+        
+        .task-info { display: flex; align-items: center; gap: 15px; }
+        input[type="checkbox"] { accent-color: var(--orange); width: 22px; height: 22px; cursor: pointer; }
+        .del-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 1.2rem; }
+        .del-btn:hover { color: var(--orange); }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <h1 class="main-title">AD'S MOMENTUM</h1>
+    <p class="motto">Consistency is the only currency.</p>
+
     <div class="date-nav">
-        <button class="nav-btn" onclick="changeDate(-1)">❮ Prev</button>
-        <h2 id="currentDateDisplay" style="margin:0; color:var(--orange)">Loading...</h2>
-        <button class="nav-btn" onclick="changeDate(1)">Next ❯</button>
+        <button class="nav-btn" onclick="changeDate(-1)">PREV</button>
+        <h2 id="currentDateDisplay" style="margin:0;">LOADING...</h2>
+        <button class="nav-btn" onclick="changeDate(1)">NEXT</button>
     </div>
 
     <div class="dashboard">
-        <div class="stat-card"><h3>Daily</h3><span id="dailyStat">0%</span></div>
-        <div class="stat-card"><h3>Streak</h3><span id="streakStat">0 Days</span></div>
+        <div class="stat-card"><h3>DAILY PROGRESS</h3><span id="dailyStat">0%</span></div>
+        <div class="stat-card"><h3>STREAK</h3><span id="streakStat">0 DAYS</span></div>
     </div>
 
     <div class="add-box">
-        <input type="text" id="taskInput" placeholder="New Task Name..." style="width: 70%; padding: 8px; border-radius: 5px; border: none;">
-        <button onclick="addTask()" style="padding: 8px 15px; background: var(--olive); color: white; border: none; border-radius: 5px;">Add</button>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="taskInput" placeholder="ENTER NEW HABIT...">
+            <button class="add-btn" onclick="addTask()">ADD</button>
+        </div>
         
-        <div style="margin-top:10px;">
-            <label style="font-size: 0.8rem;"><input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> Recurring?</label>
+        <div style="margin-top:15px;">
+            <label style="font-size: 0.8rem; cursor:pointer;">
+                <input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> SET AS RECURRING?
+            </label>
             <div id="dayPicker" class="day-picker hidden">
-                <label class="day-label"><input type="checkbox" value="1">Mon</label>
-                <label class="day-label"><input type="checkbox" value="2">Tue</label>
-                <label class="day-label"><input type="checkbox" value="3">Wed</label>
-                <label class="day-label"><input type="checkbox" value="4">Thu</label>
-                <label class="day-label"><input type="checkbox" value="5">Fri</label>
-                <label class="day-label"><input type="checkbox" value="6">Sat</label>
-                <label class="day-label"><input type="checkbox" value="0">Sun</label>
+                <label class="day-label"><input type="checkbox" value="1"> MON</label>
+                <label class="day-label"><input type="checkbox" value="2"> TUE</label>
+                <label class="day-label"><input type="checkbox" value="3"> WED</label>
+                <label class="day-label"><input type="checkbox" value="4"> THU</label>
+                <label class="day-label"><input type="checkbox" value="5"> FRI</label>
+                <label class="day-label"><input type="checkbox" value="6"> SAT</label>
+                <label class="day-label"><input type="checkbox" value="0"> SUN</label>
             </div>
         </div>
     </div>
@@ -69,7 +159,7 @@
 </div>
 
 <script>
-    // --- FIREBASE CONFIG ---
+    /* --- PASTE YOUR FIREBASE CONFIG HERE --- */
     const firebaseConfig = {
         apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
             authDomain: "mydailyhabits-5b16d.firebaseapp.com",
@@ -83,7 +173,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- STATE MANAGEMENT ---
     let currentViewingDate = new Date();
     currentViewingDate.setHours(0,0,0,0);
 
@@ -100,7 +189,6 @@
         return date.toISOString().split('T')[0];
     }
 
-    // --- CORE LOGIC ---
     function addTask() {
         const text = document.getElementById('taskInput').value;
         const isRecurring = document.getElementById('isRecurring').checked;
@@ -118,6 +206,9 @@
 
         db.ref('habits/definitions').push(taskData);
         document.getElementById('taskInput').value = "";
+        // Reset recurring toggle
+        document.getElementById('isRecurring').checked = false;
+        toggleDayPicker();
     }
 
     function toggleCheck(taskId) {
@@ -129,7 +220,6 @@
     }
 
     function deleteTask(id) {
-        // Logic to remove from definitions
         db.ref('habits/definitions').once('value', snap => {
             snap.forEach(child => {
                 if(child.val().id == id) child.ref.remove();
@@ -142,7 +232,6 @@
         const dayOfWeek = currentViewingDate.getDay();
         document.getElementById('currentDateDisplay').innerText = currentViewingDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
-        // Listen to Definitions and Progress simultaneously
         db.ref('habits').on('value', snap => {
             const data = snap.val() || {};
             const definitions = data.definitions || {};
@@ -155,7 +244,6 @@
             let completedTasks = 0;
 
             Object.values(definitions).forEach(task => {
-                // Filter: Show if recurring on this day OR if it was a one-time task created on this date
                 const isTodayTask = !task.recurring && task.createdDate === dateKey;
                 const isRecurringToday = task.recurring && task.days.includes(dayOfWeek);
 
@@ -168,9 +256,9 @@
                         <div class="task-item">
                             <div class="task-info">
                                 <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="toggleCheck(${task.id})">
-                                <span style="${isChecked ? 'text-decoration:line-through; color:#888' : ''}">${task.text}</span>
+                                <span style="${isChecked ? 'text-decoration:line-through; color:#555' : ''}">${task.text}</span>
                             </div>
-                            <button class="del-btn" onclick="deleteTask(${task.id})">✕</button>
+                            <button class="del-btn" onclick="deleteTask(${task.id})">REMOVE</button>
                         </div>
                     `;
                 }
