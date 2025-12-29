@@ -1,0 +1,54 @@
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
+<script>
+  // 1. YOUR CONFIG GOES HERE
+  const firebaseConfig = {
+    apiKey: "const firebaseConfig = {
+  apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
+  authDomain: "mydailyhabits-5b16d.firebaseapp.com",
+  databaseURL: "https://mydailyhabits-5b16d-default-rtdb.firebaseio.com",
+  projectId: "mydailyhabits-5b16d",
+  storageBucket: "mydailyhabits-5b16d.firebasestorage.app",
+  messagingSenderId: "50093682600",
+  appId: "1:50093682600:web:26644d7a3deb366ee3379d"
+};",
+    authDomain: "...",
+    databaseURL: "...",
+    projectId: "...",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "..."
+  };
+
+  // 2. Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // 3. Save progress to the cloud
+  function updateProgress() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const status = Array.from(checkboxes).map(c => c.checked);
+    
+    // This saves the state of all checkboxes to a path called "dailyStatus"
+    db.ref('dailyStatus').set(status);
+    
+    renderCharts(status);
+  }
+
+  // 4. Sync data from the cloud when page loads
+  db.ref('dailyStatus').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      data.forEach((isChecked, index) => {
+        checkboxes[index].checked = isChecked;
+      });
+      renderCharts(data);
+    }
+  });
+
+  function renderCharts(statusArray) {
+    // ... insert your Chart.js logic here ...
+  }
+</script>
