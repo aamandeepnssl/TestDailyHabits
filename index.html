@@ -3,178 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Habit Tracker</title>
+    <title>Advanced Habit Tracker</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    
     <style>
-        :root {
-            --bg-dark: #1a1a1a;
-            --panel-grey: #2d2d2d;
-            --text-light: #e0e0e0;
-            --olive: #708238;
-            --orange: #ff8c00;
-        }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-dark); 
-            color: var(--text-light);
-            margin: 0; padding: 20px;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px; margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--panel-grey);
-            padding: 20px;
-            border-radius: 10px;
-            border-top: 4px solid var(--orange);
-            text-align: center;
-        }
-
-        .stat-card h3 { color: var(--olive); margin: 0; font-size: 0.9rem; }
-        .stat-card p { font-size: 1.8rem; font-weight: bold; margin: 5px 0 0; }
-
-        .task-container {
-            background: var(--panel-grey);
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        :root { --bg: #1a1a1a; --panel: #2d2d2d; --text: #e0e0e0; --olive: #708238; --orange: #ff8c00; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; }
         
-        input[type="text"] {
-            flex: 1; padding: 10px; background: #3d3d3d; border: none;
-            color: white; border-radius: 5px;
-        }
-
-        button.add-btn {
-            background: var(--olive); color: white; border: none;
-            padding: 10px 20px; border-radius: 5px; cursor: pointer;
-        }
-
-        .task-item {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #333; padding: 12px; margin-bottom: 8px; border-radius: 6px;
-        }
-
-        input[type="checkbox"] { accent-color: var(--orange); transform: scale(1.5); }
+        /* Header & Nav */
+        .date-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 15px; border-radius: 10px; border-bottom: 3px solid var(--orange); }
+        .nav-btn { background: none; border: 1px solid var(--olive); color: var(--olive); padding: 5px 15px; cursor: pointer; border-radius: 5px; }
         
-        .delete-btn { color: #ff4444; cursor: pointer; background: none; border: none; }
+        /* Stats */
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--panel); padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-card span { display: block; font-size: 1.5rem; font-weight: bold; color: var(--orange); }
+
+        /* Input Section */
+        .add-box { background: var(--panel); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .day-picker { display: flex; gap: 5px; margin: 10px 0; justify-content: space-between; }
+        .day-label { font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        
+        /* Task List */
+        .task-item { display: flex; align-items: center; background: #333; padding: 12px; margin-bottom: 8px; border-radius: 6px; justify-content: space-between; }
+        .task-info { display: flex; align-items: center; gap: 10px; }
+        input[type="checkbox"] { accent-color: var(--orange); width: 20px; height: 20px; }
+        .del-btn { background: none; border: none; color: #ff4444; cursor: pointer; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div style="max-width: 800px; margin: 0 auto;">
-        <h1 style="color: var(--orange)">Personal Dashboard</h1>
+<div class="container">
+    <div class="date-nav">
+        <button class="nav-btn" onclick="changeDate(-1)">❮ Prev</button>
+        <h2 id="currentDateDisplay" style="margin:0; color:var(--orange)">Loading...</h2>
+        <button class="nav-btn" onclick="changeDate(1)">Next ❯</button>
+    </div>
 
-        <div class="dashboard">
-            <div class="stat-card">
-                <h3>Completion</h3>
-                <p id="percent">0%</p>
-            </div>
-            <div class="stat-card">
-                <h3>Tasks Done</h3>
-                <p id="count">0/0</p>
-            </div>
-        </div>
+    <div class="dashboard">
+        <div class="stat-card"><h3>Daily</h3><span id="dailyStat">0%</span></div>
+        <div class="stat-card"><h3>Streak</h3><span id="streakStat">0 Days</span></div>
+    </div>
 
-        <div class="task-container">
-            <div class="input-group">
-                <input type="text" id="taskInput" placeholder="Add a new habit...">
-                <button class="add-btn" onclick="addTask()">Add Task</button>
+    <div class="add-box">
+        <input type="text" id="taskInput" placeholder="New Task Name..." style="width: 70%; padding: 8px; border-radius: 5px; border: none;">
+        <button onclick="addTask()" style="padding: 8px 15px; background: var(--olive); color: white; border: none; border-radius: 5px;">Add</button>
+        
+        <div style="margin-top:10px;">
+            <label style="font-size: 0.8rem;"><input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> Recurring?</label>
+            <div id="dayPicker" class="day-picker hidden">
+                <label class="day-label"><input type="checkbox" value="1">Mon</label>
+                <label class="day-label"><input type="checkbox" value="2">Tue</label>
+                <label class="day-label"><input type="checkbox" value="3">Wed</label>
+                <label class="day-label"><input type="checkbox" value="4">Thu</label>
+                <label class="day-label"><input type="checkbox" value="5">Fri</label>
+                <label class="day-label"><input type="checkbox" value="6">Sat</label>
+                <label class="day-label"><input type="checkbox" value="0">Sun</label>
             </div>
-            <div id="taskList"></div>
         </div>
     </div>
 
-    <script>
-        // 1. FIREBASE CONFIG (Paste your keys here again)
-        const firebaseConfig = {
-            apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
+    <div id="taskList"></div>
+</div>
+
+<script>
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
             authDomain: "mydailyhabits-5b16d.firebaseapp.com",
             databaseURL: "https://mydailyhabits-5b16d-default-rtdb.firebaseio.com",
             projectId: "mydailyhabits-5b16d",
             storageBucket: "mydailyhabits-5b16d.firebasestorage.app",
             messagingSenderId: "50093682600",
             appId: "1:50093682600:web:26644d7a3deb366ee3379d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // --- STATE MANAGEMENT ---
+    let currentViewingDate = new Date();
+    currentViewingDate.setHours(0,0,0,0);
+
+    function toggleDayPicker() {
+        document.getElementById('dayPicker').classList.toggle('hidden', !document.getElementById('isRecurring').checked);
+    }
+
+    function changeDate(days) {
+        currentViewingDate.setDate(currentViewingDate.getDate() + days);
+        render();
+    }
+
+    function formatDate(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    // --- CORE LOGIC ---
+    function addTask() {
+        const text = document.getElementById('taskInput').value;
+        const isRecurring = document.getElementById('isRecurring').checked;
+        const selectedDays = Array.from(document.querySelectorAll('#dayPicker input:checked')).map(i => parseInt(i.value));
+        
+        if(!text) return;
+
+        const taskData = {
+            id: Date.now(),
+            text: text,
+            recurring: isRecurring,
+            days: isRecurring ? selectedDays : null,
+            createdDate: formatDate(currentViewingDate)
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        db.ref('habits/definitions').push(taskData);
+        document.getElementById('taskInput').value = "";
+    }
 
-        // 2. Add New Task
-        function addTask() {
-            const input = document.getElementById('taskInput');
-            if(input.value === "") return;
-
-            const newTask = {
-                id: Date.now(),
-                text: input.value,
-                completed: false
-            };
-
-            // Get current tasks, add new one, save
-            db.ref('habitTracker/tasks').once('value').then(snapshot => {
-                const tasks = snapshot.val() || [];
-                tasks.push(newTask);
-                db.ref('habitTracker/tasks').set(tasks);
-                input.value = "";
-            });
-        }
-
-        // 3. Delete Task
-        function deleteTask(id) {
-            db.ref('habitTracker/tasks').once('value').then(snapshot => {
-                const tasks = snapshot.val() || [];
-                const updatedTasks = tasks.filter(t => t.id !== id);
-                db.ref('habitTracker/tasks').set(updatedTasks);
-            });
-        }
-
-        // 4. Toggle Task Checkbox
-        function toggleTask(id) {
-            db.ref('habitTracker/tasks').once('value').then(snapshot => {
-                const tasks = snapshot.val() || [];
-                const task = tasks.find(t => t.id === id);
-                if(task) task.completed = !task.completed;
-                db.ref('habitTracker/tasks').set(tasks);
-            });
-        }
-
-        // 5. Listen for Sync and Update UI
-        db.ref('habitTracker/tasks').on('value', (snapshot) => {
-            const tasks = snapshot.val() || [];
-            const list = document.getElementById('taskList');
-            list.innerHTML = "";
-
-            let completedCount = 0;
-
-            tasks.forEach(task => {
-                if(task.completed) completedCount++;
-                list.innerHTML += `
-                    <div class="task-item">
-                        <div style="display:flex; align-items:center; gap:15px;">
-                            <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTask(${task.id})">
-                            <span style="${task.completed ? 'text-decoration: line-through; color: #888' : ''}">${task.text}</span>
-                        </div>
-                        <button class="delete-btn" onclick="deleteTask(${task.id})">✕</button>
-                    </div>
-                `;
-            });
-
-            // Update Dashboard Metrics
-            const percent = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
-            document.getElementById('percent').innerText = percent + "%";
-            document.getElementById('count').innerText = `${completedCount}/${tasks.length}`;
+    function toggleCheck(taskId) {
+        const dateKey = formatDate(currentViewingDate);
+        const ref = db.ref(`habits/progress/${dateKey}/${taskId}`);
+        ref.once('value', snap => {
+            ref.set(!snap.val());
         });
-    </script>
+    }
+
+    function deleteTask(id) {
+        // Logic to remove from definitions
+        db.ref('habits/definitions').once('value', snap => {
+            snap.forEach(child => {
+                if(child.val().id == id) child.ref.remove();
+            });
+        });
+    }
+
+    function render() {
+        const dateKey = formatDate(currentViewingDate);
+        const dayOfWeek = currentViewingDate.getDay();
+        document.getElementById('currentDateDisplay').innerText = currentViewingDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+        // Listen to Definitions and Progress simultaneously
+        db.ref('habits').on('value', snap => {
+            const data = snap.val() || {};
+            const definitions = data.definitions || {};
+            const dailyProgress = (data.progress && data.progress[dateKey]) ? data.progress[dateKey] : {};
+            
+            const listDiv = document.getElementById('taskList');
+            listDiv.innerHTML = "";
+            
+            let totalTasks = 0;
+            let completedTasks = 0;
+
+            Object.values(definitions).forEach(task => {
+                // Filter: Show if recurring on this day OR if it was a one-time task created on this date
+                const isTodayTask = !task.recurring && task.createdDate === dateKey;
+                const isRecurringToday = task.recurring && task.days.includes(dayOfWeek);
+
+                if (isTodayTask || isRecurringToday) {
+                    totalTasks++;
+                    const isChecked = dailyProgress[task.id] || false;
+                    if(isChecked) completedTasks++;
+
+                    listDiv.innerHTML += `
+                        <div class="task-item">
+                            <div class="task-info">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="toggleCheck(${task.id})">
+                                <span style="${isChecked ? 'text-decoration:line-through; color:#888' : ''}">${task.text}</span>
+                            </div>
+                            <button class="del-btn" onclick="deleteTask(${task.id})">✕</button>
+                        </div>
+                    `;
+                }
+            });
+
+            const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            document.getElementById('dailyStat').innerText = percent + "%";
+        });
+    }
+
+    render();
+</script>
+
 </body>
 </html>
