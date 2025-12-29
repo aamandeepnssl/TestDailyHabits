@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
     <style>
         :root { 
             --bg: #121212; 
@@ -29,7 +30,8 @@
         }
 
         .container { max-width: 650px; margin: 0 auto; }
-        h1.main-title { text-align: center; color: var(--orange); font-size: 2.5rem; margin-bottom: 5px; }
+        
+        h1.main-title { text-align: center; color: var(--orange); font-size: 2.5rem; margin-bottom: 5px; letter-spacing: 3px; }
         
         .motto { 
             text-align: center; 
@@ -46,22 +48,23 @@
         
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--panel); padding: 15px; text-align: center; border-bottom: 3px solid var(--grey); }
-        .stat-card span { display: block; font-size: 2rem; color: var(--orange); }
+        .stat-card h3 { margin: 0; font-size: 0.9rem; color: var(--olive); }
+        .stat-card span { display: block; font-size: 2.2rem; color: var(--orange); font-weight: 700; }
 
         .add-box { background: var(--panel); padding: 20px; margin-bottom: 20px; }
         .input-row { display: flex; width: 100%; gap: 10px; box-sizing: border-box; }
         input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; }
         
-        .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); transition: 0.2s; }
+        .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); }
         .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: bold; padding: 5px 10px; transition: 0.3s; }
         .del-btn:hover { color: #fff; background: var(--danger); border-radius: 3px; }
 
-        /* Updated Modal - Simplified */
+        /* Custom Delete Dialog */
         #deleteModal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.92);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -71,8 +74,14 @@
         .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold; }
         .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; }
 
+        /* Heatmap */
+        .heatmap-container { background: var(--panel); padding: 20px; margin-top: 30px; border-top: 3px solid var(--orange); }
+        .heatmap-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-top: 15px; }
         .heat-square { aspect-ratio: 1; background: #1a1a1a; border-radius: 1px; }
-        .level-1 { background: #2d3319; } .level-2 { background: #4b5826; } .level-3 { background: #708238; }
+        .level-1 { background: #2d3319; } 
+        .level-2 { background: #4b5826; } 
+        .level-3 { background: #708238; }
+        
         .hidden { display: none !important; }
     </style>
 </head>
@@ -94,7 +103,7 @@
 
     <div class="date-nav">
         <button class="nav-btn" onclick="changeDate(-1)">PREV</button>
-        <h2 id="currentDateDisplay">LOADING...</h2>
+        <h2 id="currentDateDisplay" style="margin:0;">LOADING...</h2>
         <button class="nav-btn" onclick="changeDate(1)">NEXT</button>
     </div>
 
@@ -126,14 +135,14 @@
 
     <div id="taskList"></div>
 
-    <div class="heatmap-container" style="background: var(--panel); padding: 20px; margin-top: 30px; border-top: 3px solid var(--orange);">
-        <h3 style="margin-top:0; font-size: 1rem; color: var(--olive);">MOMENTUM HEATMAP</h3>
-        <div id="heatmapGrid" style="display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px;"></div>
+    <div class="heatmap-container">
+        <h3 style="margin-top:0; font-size: 1rem; color: var(--olive);">MOMENTUM HEATMAP (LAST 100 DAYS)</h3>
+        <div id="heatmapGrid" class="heatmap-grid"></div>
     </div>
 </div>
 
 <script>
-    // --- PASTE YOUR FIREBASE CONFIG HERE ---
+    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
             authDomain: "mydailyhabits-5b16d.firebaseapp.com",
@@ -146,6 +155,7 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    
     let currentViewingDate = new Date();
     currentViewingDate.setHours(0,0,0,0);
     let taskToDelete = null;
@@ -157,7 +167,11 @@
         else picker.classList.add('hidden');
     }
 
-    function changeDate(days) { currentViewingDate.setDate(currentViewingDate.getDate() + days); render(); }
+    function changeDate(days) { 
+        currentViewingDate.setDate(currentViewingDate.getDate() + days); 
+        render(); 
+    }
+
     function formatDate(date) {
         const d = new Date(date);
         d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -168,10 +182,12 @@
         taskToDelete = taskId;
         document.getElementById('deleteModal').style.display = 'flex';
     }
+
     function closeModal() {
         document.getElementById('deleteModal').style.display = 'none';
         taskToDelete = null;
     }
+
     document.getElementById('confirmDelete').onclick = function() {
         if(taskToDelete) {
             db.ref('habits/definitions').once('value', snap => {
@@ -186,7 +202,13 @@
         const isRec = document.getElementById('isRecurring').checked;
         const days = Array.from(document.querySelectorAll('#dayPicker input:checked')).map(i => parseInt(i.value));
         if(!text) return;
-        db.ref('habits/definitions').push({ id: Date.now(), text, recurring: isRec, days: isRec ? days : null, createdDate: formatDate(currentViewingDate) });
+        db.ref('habits/definitions').push({ 
+            id: Date.now(), 
+            text, 
+            recurring: isRec, 
+            days: isRec ? days : null, 
+            createdDate: formatDate(currentViewingDate) 
+        });
         document.getElementById('taskInput').value = "";
         document.getElementById('isRecurring').checked = false;
         toggleDayPicker();
@@ -204,12 +226,14 @@
         const grid = document.getElementById('heatmapGrid');
         grid.innerHTML = "";
         
+        // 1. Heatmap Generation
         for (let i = 99; i >= 0; i--) {
             const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
             const key = formatDate(d);
+            const dow = d.getDay();
             let total = 0, done = 0;
             Object.values(defs).forEach(t => {
-                if ((!t.recurring && t.createdDate === key) || (t.recurring && t.days && t.days.includes(d.getDay()))) {
+                if ((!t.recurring && t.createdDate === key) || (t.recurring && t.days && t.days.includes(dow))) {
                     total++; if (prog[key] && prog[key][t.id]) done++;
                 }
             });
@@ -219,17 +243,37 @@
             grid.innerHTML += `<div class="heat-square ${level}" title="${key}"></div>`;
         }
 
-        let streak = 0; let sDate = new Date(); sDate.setHours(0,0,0,0);
-        while (true) {
-            const key = formatDate(sDate);
-            let tD = 0, dD = 0;
-            Object.values(defs).forEach(t => {
-                if ((!t.recurring && t.createdDate === key) || (t.recurring && t.days && t.days.includes(sDate.getDay()))) {
-                    tD++; if (prog[key] && prog[key][t.id]) dD++;
+        // 2. Safe Streak Calculation
+        let streak = 0; 
+        let sDate = new Date(); 
+        sDate.setHours(0,0,0,0);
+        let safety = 0;
+
+        if (Object.keys(defs).length > 0) {
+            while (safety < 365) {
+                const key = formatDate(sDate);
+                const dow = sDate.getDay();
+                let scheduled = 0, completed = 0;
+
+                Object.values(defs).forEach(t => {
+                    if ((!t.recurring && t.createdDate === key) || (t.recurring && t.days && t.days.includes(dow))) {
+                        scheduled++;
+                        if (prog[key] && prog[key][t.id]) completed++;
+                    }
+                });
+
+                if (scheduled > 0) {
+                    if (completed === scheduled) {
+                        streak++;
+                    } else {
+                        break; // Streak broken
+                    }
                 }
-            });
-            if (tD === 0) { sDate.setDate(sDate.getDate() - 1); if (streak > 365) break; continue; }
-            if (dD === tD) { streak++; sDate.setDate(sDate.getDate() - 1); } else { break; }
+                // If scheduled is 0, we don't increment streak but we don't break it either (rest day)
+                
+                sDate.setDate(sDate.getDate() - 1);
+                safety++;
+            }
         }
         document.getElementById('streakStat').innerText = streak + " DAYS";
     }
@@ -237,6 +281,7 @@
     function render() {
         const dateKey = formatDate(currentViewingDate);
         document.getElementById('currentDateDisplay').innerText = currentViewingDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        
         db.ref('habits').on('value', snap => {
             const data = snap.val() || {};
             const defs = data.definitions || {};
@@ -244,17 +289,21 @@
             const listDiv = document.getElementById('taskList');
             listDiv.innerHTML = "";
             let total = 0, done = 0;
+
             Object.values(defs).forEach(task => {
                 const isToday = (!task.recurring && task.createdDate === dateKey) || (task.recurring && task.days && task.days.includes(currentViewingDate.getDay()));
                 if (isToday) {
-                    total++; const isChecked = prog[task.id] || false; if(isChecked) done++;
-                    listDiv.innerHTML += `<div class="task-item">
-                        <div style="display:flex; align-items:center; gap:15px;">
-                            <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="toggleCheck(${task.id})">
-                            <span style="${isChecked ? 'text-decoration:line-through; color:#555' : ''}">${task.text}</span>
-                        </div>
-                        <button class="del-btn" onclick="openDeleteModal(${task.id})">REMOVE</button>
-                    </div>`;
+                    total++; 
+                    const isChecked = prog[task.id] || false; 
+                    if(isChecked) done++;
+                    listDiv.innerHTML += `
+                        <div class="task-item">
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="toggleCheck(${task.id})">
+                                <span style="${isChecked ? 'text-decoration:line-through; color:#555' : ''}">${task.text}</span>
+                            </div>
+                            <button class="del-btn" onclick="openDeleteModal(${task.id})">REMOVE</button>
+                        </div>`;
                 }
             });
             document.getElementById('dailyStat').innerText = (total > 0 ? Math.round((done / total) * 100) : 0) + "%";
@@ -263,5 +312,6 @@
     }
     render();
 </script>
+
 </body>
 </html>
