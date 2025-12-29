@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AD's Momentum</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Protest+Strike&display=swap:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
@@ -23,15 +23,15 @@
         .day-picker { display: flex; gap: 5px; margin-top: 15px; justify-content: space-between; }
         .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); }
         .hidden { display: none; }
-        
-        /* Heatmap Styles */
         .heatmap-container { background: var(--panel); padding: 20px; margin-top: 30px; border-top: 3px solid var(--orange); }
         .heatmap-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-top: 10px; }
-        .heat-square { aspect-ratio: 1; background: #111; border-radius: 2px; font-size: 0.5rem; display: flex; align-items: center; justify-content: center; color: #444; }
+        .heat-square { aspect-ratio: 1; background: #111; border-radius: 2px; }
         .level-0 { background: #1a1a1a; }
         .level-1 { background: #2d3319; }
         .level-2 { background: #4b5826; }
-        .level-3 { background: #708238; } /* Full Olive */
+        .level-3 { background: #708238; }
+        .del-btn { background: none; border: none; color: #666; cursor: pointer; font-family: 'Oswald'; font-size: 0.8rem; }
+        .del-btn:hover { color: #ff4444; }
     </style>
 </head>
 <body>
@@ -57,7 +57,7 @@
             <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px; cursor:pointer; font-family:'Oswald'">ADD</button>
         </div>
         <div style="margin-top:15px;">
-            <label style="font-size: 0.8rem;"><input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> RECURRING?</label>
+            <label style="font-size: 0.8rem; cursor: pointer;"><input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> RECURRING?</label>
             <div id="dayPicker" class="day-picker hidden">
                 <label><input type="checkbox" value="1"> MON</label>
                 <label><input type="checkbox" value="2"> TUE</label>
@@ -73,13 +73,13 @@
     <div id="taskList"></div>
 
     <div class="heatmap-container">
-        <h3>MOMENTUM HEATMAP (Last 100 Days)</h3>
+        <h3>MOMENTUM HEATMAP (LAST 100 DAYS)</h3>
         <div class="heatmap-grid" id="heatmapGrid"></div>
     </div>
 </div>
 
 <script>
-    // --- INSERT FIREBASE CONFIG HERE ---
+    // --- PASTE YOUR FIREBASE CONFIG HERE ---
     const firebaseConfig = {
         apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
             authDomain: "mydailyhabits-5b16d.firebaseapp.com",
@@ -97,7 +97,13 @@
 
     function toggleDayPicker() { document.getElementById('dayPicker').classList.toggle('hidden', !document.getElementById('isRecurring').checked); }
     function changeDate(days) { currentViewingDate.setDate(currentViewingDate.getDate() + days); render(); }
-    function formatDate(date) { return date.toISOString().split('T')[0]; }
+    
+    // Fixed timezone-safe date formatting
+    function formatDate(date) {
+        const d = new Date(date);
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        return d.toISOString().split('T')[0];
+    }
 
     function addTask() {
         const text = document.getElementById('taskInput').value;
@@ -106,6 +112,8 @@
         if(!text) return;
         db.ref('habits/definitions').push({ id: Date.now(), text, recurring: isRec, days: isRec ? days : null, createdDate: formatDate(currentViewingDate) });
         document.getElementById('taskInput').value = "";
+        document.getElementById('isRecurring').checked = false;
+        toggleDayPicker();
     }
 
     function toggleCheck(taskId) {
@@ -114,19 +122,28 @@
         ref.once('value', s => ref.set(!s.val()));
     }
 
-    function generateHeatmap(allData) {
-        const grid = document.getElementById('heatmapGrid');
-        grid.innerHTML = "";
+    function deleteTask(taskId) {
+        if(!confirm("DELETE THIS TASK PERMANENTLY?")) return;
+        db.ref('habits/definitions').once('value', snap => {
+            snap.forEach(child => {
+                if(child.val().id == taskId) child.ref.remove();
+            });
+        });
+    }
+
+    function updateStats(allData) {
         const definitions = allData.definitions || {};
         const progress = allData.progress || {};
         
+        // 1. Heatmap Logic
+        const grid = document.getElementById('heatmapGrid');
+        grid.innerHTML = "";
         for (let i = 99; i >= 0; i--) {
             const d = new Date();
             d.setDate(d.getDate() - i);
             d.setHours(0,0,0,0);
             const key = formatDate(d);
             const dayOfW = d.getDay();
-            
             let total = 0, done = 0;
             Object.values(definitions).forEach(t => {
                 if ((!t.recurring && t.createdDate === key) || (t.recurring && t.days.includes(dayOfW))) {
@@ -134,16 +151,31 @@
                     if (progress[key] && progress[key][t.id]) done++;
                 }
             });
-
             const pct = total > 0 ? (done / total) : -1;
             let level = "level-0";
             if (pct > 0) level = "level-1";
             if (pct > 0.6) level = "level-2";
             if (pct === 1) level = "level-3";
-            if (pct === -1) level = "level-0"; // No tasks scheduled
-
             grid.innerHTML += `<div class="heat-square ${level}" title="${key}"></div>`;
         }
+
+        // 2. Streak Logic
+        let streak = 0;
+        let sDate = new Date();
+        sDate.setHours(0,0,0,0);
+        while (true) {
+            const key = formatDate(sDate);
+            let tD = 0, dD = 0;
+            Object.values(definitions).forEach(t => {
+                if ((!t.recurring && t.createdDate === key) || (t.recurring && t.days.includes(sDate.getDay()))) {
+                    tD++;
+                    if (progress[key] && progress[key][t.id]) dD++;
+                }
+            });
+            if (tD === 0) { sDate.setDate(sDate.getDate() - 1); if (streak > 365) break; continue; }
+            if (dD === tD) { streak++; sDate.setDate(sDate.getDate() - 1); } else { break; }
+        }
+        document.getElementById('streakStat').innerText = streak + " DAYS";
     }
 
     function render() {
@@ -169,11 +201,12 @@
                             <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="toggleCheck(${task.id})">
                             <span style="${isChecked ? 'text-decoration:line-through; color:#555' : ''}">${task.text}</span>
                         </div>
+                        <button class="del-btn" onclick="deleteTask(${task.id})">REMOVE</button>
                     </div>`;
                 }
             });
             document.getElementById('dailyStat').innerText = (totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0) + "%";
-            generateHeatmap(data);
+            updateStats(data);
         });
     }
     render();
