@@ -31,10 +31,9 @@
         .container { max-width: 650px; margin: 0 auto; }
         h1.main-title { text-align: center; color: var(--orange); font-size: 2.5rem; margin-bottom: 5px; }
         
-        /* Updated Motto Size */
         .motto { 
             text-align: center; 
-            font-size: 1.2rem; /* Increased by 50% from 0.8rem */
+            font-size: 1.2rem; 
             color: var(--olive); 
             margin-bottom: 30px; 
             font-weight: 700;
@@ -49,29 +48,15 @@
         .stat-card { background: var(--panel); padding: 15px; text-align: center; border-bottom: 3px solid var(--grey); }
         .stat-card span { display: block; font-size: 2rem; color: var(--orange); }
 
-        /* Updated Add Box for full-width stretch */
         .add-box { background: var(--panel); padding: 20px; margin-bottom: 20px; }
-        .input-row { 
-            display: flex; 
-            width: 100%; 
-            gap: 10px; 
-            box-sizing: border-box;
-        }
-        input[type="text"] { 
-            flex-grow: 1; /* This makes the input field stretch */
-            padding: 12px; 
-            background: #000; 
-            border: 1px solid var(--grey); 
-            color: white; 
-            font-family: inherit; 
-            font-size: 1rem;
-        }
+        .input-row { display: flex; width: 100%; gap: 10px; box-sizing: border-box; }
+        input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; }
         
         .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); transition: 0.2s; }
         .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: bold; padding: 5px 10px; transition: 0.3s; }
         .del-btn:hover { color: #fff; background: var(--danger); border-radius: 3px; }
 
-        /* Modal */
+        /* Updated Modal - Simplified */
         #deleteModal {
             display: none;
             position: fixed;
@@ -81,7 +66,7 @@
             justify-content: center;
             align-items: center;
         }
-        .modal-content { background: var(--panel); padding: 30px; border: 2px solid var(--danger); text-align: center; max-width: 320px; }
+        .modal-content { background: var(--panel); padding: 35px; border: 1px solid var(--grey); text-align: center; max-width: 320px; }
         .modal-btns { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
         .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold; }
         .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; }
@@ -95,8 +80,7 @@
 
 <div id="deleteModal">
     <div class="modal-content">
-        <p style="margin:0; font-weight: bold; color: var(--orange);">Sure eh?</p>
-        <p style="font-size: 0.9rem; margin-top: 10px;">ARE YOU SURE YOU WANT TO DELETE THIS TASK?</p>
+        <p style="font-size: 1rem; margin: 0; letter-spacing: 1px;">ARE YOU SURE YOU WANT TO DELETE THIS TASK?</p>
         <div class="modal-btns">
             <button class="confirm-btn" id="confirmDelete">YES, DELETE</button>
             <button class="cancel-btn" onclick="closeModal()">CANCEL</button>
