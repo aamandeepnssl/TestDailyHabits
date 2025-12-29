@@ -30,7 +30,16 @@
 
         .container { max-width: 650px; margin: 0 auto; }
         h1.main-title { text-align: center; color: var(--orange); font-size: 2.5rem; margin-bottom: 5px; }
-        .motto { text-align: center; font-size: 0.8rem; color: var(--olive); margin-bottom: 30px; }
+        
+        /* Updated Motto Size */
+        .motto { 
+            text-align: center; 
+            font-size: 1.2rem; /* Increased by 50% from 0.8rem */
+            color: var(--olive); 
+            margin-bottom: 30px; 
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
         
         .date-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 15px; border-left: 5px solid var(--olive); }
         .nav-btn { background: var(--grey); border: none; color: white; padding: 8px 15px; cursor: pointer; font-family: inherit; transition: 0.2s; }
@@ -40,15 +49,29 @@
         .stat-card { background: var(--panel); padding: 15px; text-align: center; border-bottom: 3px solid var(--grey); }
         .stat-card span { display: block; font-size: 2rem; color: var(--orange); }
 
+        /* Updated Add Box for full-width stretch */
         .add-box { background: var(--panel); padding: 20px; margin-bottom: 20px; }
-        input[type="text"] { width: 70%; padding: 10px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; }
+        .input-row { 
+            display: flex; 
+            width: 100%; 
+            gap: 10px; 
+            box-sizing: border-box;
+        }
+        input[type="text"] { 
+            flex-grow: 1; /* This makes the input field stretch */
+            padding: 12px; 
+            background: #000; 
+            border: 1px solid var(--grey); 
+            color: white; 
+            font-family: inherit; 
+            font-size: 1rem;
+        }
         
-        /* Task Item & Delete Button */
         .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); transition: 0.2s; }
         .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: bold; padding: 5px 10px; transition: 0.3s; }
         .del-btn:hover { color: #fff; background: var(--danger); border-radius: 3px; }
 
-        /* Custom Dialog (Modal) */
+        /* Modal */
         #deleteModal {
             display: none;
             position: fixed;
@@ -58,22 +81,13 @@
             justify-content: center;
             align-items: center;
         }
-        .modal-content {
-            background: var(--panel);
-            padding: 30px;
-            border: 2px solid var(--danger);
-            text-align: center;
-            max-width: 320px;
-        }
+        .modal-content { background: var(--panel); padding: 30px; border: 2px solid var(--danger); text-align: center; max-width: 320px; }
         .modal-btns { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
         .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold; }
         .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; }
 
-        /* Heatmap */
         .heat-square { aspect-ratio: 1; background: #1a1a1a; border-radius: 1px; }
         .level-1 { background: #2d3319; } .level-2 { background: #4b5826; } .level-3 { background: #708238; }
-        
-        /* Utilities */
         .hidden { display: none !important; }
     </style>
 </head>
@@ -106,9 +120,9 @@
     </div>
 
     <div class="add-box">
-        <div style="display:flex; gap:10px;">
+        <div class="input-row">
             <input type="text" id="taskInput" placeholder="NEW HABIT...">
-            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px; cursor:pointer; font-family:inherit; font-weight: bold;">ADD TASK</button>
+            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: bold; white-space: nowrap;">ADD TASK</button>
         </div>
         <div style="margin-top:15px;">
             <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;">
@@ -152,15 +166,11 @@
     currentViewingDate.setHours(0,0,0,0);
     let taskToDelete = null;
 
-    // Fixed: Logic to show/hide day picker
     function toggleDayPicker() {
         const picker = document.getElementById('dayPicker');
         const isChecked = document.getElementById('isRecurring').checked;
-        if(isChecked) {
-            picker.classList.remove('hidden');
-        } else {
-            picker.classList.add('hidden');
-        }
+        if(isChecked) picker.classList.remove('hidden');
+        else picker.classList.add('hidden');
     }
 
     function changeDate(days) { currentViewingDate.setDate(currentViewingDate.getDate() + days); render(); }
@@ -170,7 +180,6 @@
         return d.toISOString().split('T')[0];
     }
 
-    // Modal Operations
     function openDeleteModal(taskId) {
         taskToDelete = taskId;
         document.getElementById('deleteModal').style.display = 'flex';
@@ -196,7 +205,7 @@
         db.ref('habits/definitions').push({ id: Date.now(), text, recurring: isRec, days: isRec ? days : null, createdDate: formatDate(currentViewingDate) });
         document.getElementById('taskInput').value = "";
         document.getElementById('isRecurring').checked = false;
-        toggleDayPicker(); // Hide picker again
+        toggleDayPicker();
     }
 
     function toggleCheck(taskId) {
@@ -211,7 +220,6 @@
         const grid = document.getElementById('heatmapGrid');
         grid.innerHTML = "";
         
-        // Heatmap Logic
         for (let i = 99; i >= 0; i--) {
             const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
             const key = formatDate(d);
@@ -227,7 +235,6 @@
             grid.innerHTML += `<div class="heat-square ${level}" title="${key}"></div>`;
         }
 
-        // Streak Logic
         let streak = 0; let sDate = new Date(); sDate.setHours(0,0,0,0);
         while (true) {
             const key = formatDate(sDate);
