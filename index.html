@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AD's Momentum</title>
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
@@ -19,13 +19,13 @@
         }
         
         body { 
-            font-family: 'Satoshi', sans-serif; 
+            font-family: 'Inter', sans-serif; 
             background: var(--bg); 
             color: var(--text); 
             padding: 20px; 
             margin: 0; 
             text-transform: uppercase; 
-            letter-spacing: 1px; /* Satoshi looks great with slight spacing */
+            letter-spacing: 0.5px; 
         }
 
         .container { max-width: 650px; margin: 0 auto; }
@@ -33,9 +33,9 @@
         h1.main-title { 
             text-align: center; 
             color: var(--orange); 
-            font-size: 2.8rem; 
+            font-size: 2.5rem; 
             margin-bottom: 0px; 
-            letter-spacing: 4px; 
+            letter-spacing: 3px; 
             font-weight: 700;
         }
         
@@ -59,11 +59,11 @@
             padding: 0 30px;
             line-height: 1.5;
             text-transform: none;
-            font-weight: 500;
+            font-weight: 400;
         }
         
         .date-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 15px; border-left: 5px solid var(--olive); }
-        .nav-btn { background: var(--grey); border: none; color: white; padding: 8px 15px; cursor: pointer; font-family: inherit; transition: 0.2s; font-weight: 700; }
+        .nav-btn { background: var(--grey); border: none; color: white; padding: 8px 15px; cursor: pointer; font-family: inherit; transition: 0.2s; font-weight: 700; font-size: 0.8rem; }
         .nav-btn:hover { background: var(--olive); }
         
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
@@ -73,10 +73,10 @@
 
         .add-box { background: var(--panel); padding: 20px; margin-bottom: 20px; }
         .input-row { display: flex; width: 100%; gap: 10px; box-sizing: border-box; }
-        input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; }
+        input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; text-transform: uppercase; }
         
         .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); }
-        .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: 700; padding: 5px 10px; transition: 0.3s; }
+        .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: 700; padding: 5px 10px; transition: 0.3s; font-size: 0.8rem; }
         .del-btn:hover { color: #fff; background: var(--danger); border-radius: 3px; }
 
         #deleteModal {
@@ -120,7 +120,7 @@
 
     <div class="date-nav">
         <button class="nav-btn" onclick="changeDate(-1)">PREV</button>
-        <h2 id="currentDateDisplay" style="margin:0;">LOADING...</h2>
+        <h2 id="currentDateDisplay" style="margin:0; font-size: 1.2rem;">LOADING...</h2>
         <button class="nav-btn" onclick="changeDate(1)">NEXT</button>
     </div>
 
@@ -132,20 +132,20 @@
     <div class="add-box">
         <div class="input-row">
             <input type="text" id="taskInput" placeholder="NEW HABIT...">
-            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: 700; white-space: nowrap;">ADD TASK</button>
+            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: 700; white-space: nowrap; font-size: 0.8rem;">ADD TASK</button>
         </div>
         <div style="margin-top:15px;">
             <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; font-weight: 500;">
                 <input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> SET AS RECURRING?
             </label>
             <div id="dayPicker" class="day-picker hidden" style="display:flex; justify-content:space-between; margin-top:15px; background: #000; padding: 10px; border-radius: 4px;">
-                <label style="font-size:0.7rem;"><input type="checkbox" value="1"> MON</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="2"> TUE</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="3"> WED</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="4"> THU</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="5"> FRI</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="6"> SAT</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="0"> SUN</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="1"> MON</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="2"> TUE</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="3"> WED</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="4"> THU</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="5"> FRI</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="6"> SAT</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="0"> SUN</label>
             </div>
         </div>
     </div>
