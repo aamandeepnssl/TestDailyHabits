@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AD's Momentum</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
@@ -19,7 +19,7 @@
         }
         
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Fira Sans Condensed', sans-serif; 
             background: var(--bg); 
             color: var(--text); 
             padding: 20px; 
@@ -30,20 +30,20 @@
 
         .container { max-width: 650px; margin: 0 auto; }
         
+        /* Adjusted Spacing for Title and Motto */
         h1.main-title { 
             text-align: center; 
             color: var(--orange); 
             font-size: 2.5rem; 
-            margin-bottom: 0px; 
+            margin-bottom: 0px; /* Removed margin to bring motto closer */
             letter-spacing: 3px; 
-            font-weight: 700;
         }
         
         .motto { 
             text-align: center; 
             font-size: 1.2rem; 
             color: var(--olive); 
-            margin-top: 5px; 
+            margin-top: 5px; /* Tiny gap under title */
             margin-bottom: 25px; 
             font-weight: 700;
             letter-spacing: 2px;
@@ -55,28 +55,27 @@
             color: #888;
             margin-bottom: 30px;
             min-height: 45px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             padding: 0 30px;
-            line-height: 1.5;
+            line-height: 1.4;
             text-transform: none;
-            font-weight: 400;
         }
         
         .date-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 15px; border-left: 5px solid var(--olive); }
-        .nav-btn { background: var(--grey); border: none; color: white; padding: 8px 15px; cursor: pointer; font-family: inherit; transition: 0.2s; font-weight: 700; font-size: 0.8rem; }
+        .nav-btn { background: var(--grey); border: none; color: white; padding: 8px 15px; cursor: pointer; font-family: inherit; transition: 0.2s; }
         .nav-btn:hover { background: var(--olive); }
         
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--panel); padding: 15px; text-align: center; border-bottom: 3px solid var(--grey); }
-        .stat-card h3 { margin: 0; font-size: 0.8rem; color: var(--olive); font-weight: 700; }
-        .stat-card span { display: block; font-size: 2.4rem; color: var(--orange); font-weight: 700; }
+        .stat-card h3 { margin: 0; font-size: 0.9rem; color: var(--olive); }
+        .stat-card span { display: block; font-size: 2.2rem; color: var(--orange); font-weight: 700; }
 
         .add-box { background: var(--panel); padding: 20px; margin-bottom: 20px; }
         .input-row { display: flex; width: 100%; gap: 10px; box-sizing: border-box; }
-        input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; text-transform: uppercase; }
+        input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; }
         
         .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); }
-        .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: 700; padding: 5px 10px; transition: 0.3s; font-size: 0.8rem; }
+        .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: bold; padding: 5px 10px; transition: 0.3s; }
         .del-btn:hover { color: #fff; background: var(--danger); border-radius: 3px; }
 
         #deleteModal {
@@ -90,7 +89,7 @@
         }
         .modal-content { background: var(--panel); padding: 35px; border: 1px solid var(--grey); text-align: center; max-width: 320px; }
         .modal-btns { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
-        .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: 700; }
+        .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold; }
         .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; }
 
         .heatmap-container { background: var(--panel); padding: 20px; margin-top: 30px; border-top: 3px solid var(--orange); }
@@ -105,7 +104,7 @@
 
 <div id="deleteModal">
     <div class="modal-content">
-        <p style="font-size: 1rem; margin: 0; letter-spacing: 1px; font-weight: 700;">ARE YOU SURE YOU WANT TO DELETE THIS TASK?</p>
+        <p style="font-size: 1rem; margin: 0; letter-spacing: 1px;">ARE YOU SURE YOU WANT TO DELETE THIS TASK?</p>
         <div class="modal-btns">
             <button class="confirm-btn" id="confirmDelete">YES, DELETE</button>
             <button class="cancel-btn" onclick="closeModal()">CANCEL</button>
@@ -120,7 +119,7 @@
 
     <div class="date-nav">
         <button class="nav-btn" onclick="changeDate(-1)">PREV</button>
-        <h2 id="currentDateDisplay" style="margin:0; font-size: 1.2rem;">LOADING...</h2>
+        <h2 id="currentDateDisplay" style="margin:0;">LOADING...</h2>
         <button class="nav-btn" onclick="changeDate(1)">NEXT</button>
     </div>
 
@@ -132,20 +131,20 @@
     <div class="add-box">
         <div class="input-row">
             <input type="text" id="taskInput" placeholder="NEW HABIT...">
-            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: 700; white-space: nowrap; font-size: 0.8rem;">ADD TASK</button>
+            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: bold; white-space: nowrap;">ADD TASK</button>
         </div>
         <div style="margin-top:15px;">
-            <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; font-weight: 500;">
+            <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;">
                 <input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> SET AS RECURRING?
             </label>
             <div id="dayPicker" class="day-picker hidden" style="display:flex; justify-content:space-between; margin-top:15px; background: #000; padding: 10px; border-radius: 4px;">
-                <label style="font-size:0.6rem;"><input type="checkbox" value="1"> MON</label>
-                <label style="font-size:0.6rem;"><input type="checkbox" value="2"> TUE</label>
-                <label style="font-size:0.6rem;"><input type="checkbox" value="3"> WED</label>
-                <label style="font-size:0.6rem;"><input type="checkbox" value="4"> THU</label>
-                <label style="font-size:0.6rem;"><input type="checkbox" value="5"> FRI</label>
-                <label style="font-size:0.6rem;"><input type="checkbox" value="6"> SAT</label>
-                <label style="font-size:0.6rem;"><input type="checkbox" value="0"> SUN</label>
+                <label style="font-size:0.7rem;"><input type="checkbox" value="1"> MON</label>
+                <label style="font-size:0.7rem;"><input type="checkbox" value="2"> TUE</label>
+                <label style="font-size:0.7rem;"><input type="checkbox" value="3"> WED</label>
+                <label style="font-size:0.7rem;"><input type="checkbox" value="4"> THU</label>
+                <label style="font-size:0.7rem;"><input type="checkbox" value="5"> FRI</label>
+                <label style="font-size:0.7rem;"><input type="checkbox" value="6"> SAT</label>
+                <label style="font-size:0.7rem;"><input type="checkbox" value="0"> SUN</label>
             </div>
         </div>
     </div>
@@ -153,7 +152,7 @@
     <div id="taskList"></div>
 
     <div class="heatmap-container">
-        <h3 style="margin-top:0; font-size: 1rem; color: var(--olive); font-weight: 700;">MOMENTUM HEATMAP (LAST 100 DAYS)</h3>
+        <h3 style="margin-top:0; font-size: 1rem; color: var(--olive);">MOMENTUM HEATMAP (LAST 100 DAYS)</h3>
         <div id="heatmapGrid" class="heatmap-grid"></div>
     </div>
 </div>
@@ -161,13 +160,13 @@
 <script>
     // --- FIREBASE CONFIG (PASTE YOURS HERE) ---
     const firebaseConfig = {
-        apiKey: "YOUR_KEY",
-        authDomain: "YOUR_DOMAIN",
-        databaseURL: "YOUR_URL",
-        projectId: "YOUR_ID",
-        storageBucket: "YOUR_BUCKET",
-        messagingSenderId: "YOUR_SENDER",
-        appId: "YOUR_APP_ID"
+        apiKey: "AIzaSyCP8ZsngB137J1q186KHYeQKsIXzTbq580",
+            authDomain: "mydailyhabits-5b16d.firebaseapp.com",
+            databaseURL: "https://mydailyhabits-5b16d-default-rtdb.firebaseio.com",
+            projectId: "mydailyhabits-5b16d",
+            storageBucket: "mydailyhabits-5b16d.firebasestorage.app",
+            messagingSenderId: "50093682600",
+            appId: "1:50093682600:web:26644d7a3deb366ee3379d"
     };
 
     firebase.initializeApp(firebaseConfig);
