@@ -22,10 +22,7 @@
             --danger: #b91d1d;
         }
         
-        /* Fixed the background logic for iOS top-bar blending */
-        html {
-            background-color: #121212;
-        }
+        html { background-color: #121212; }
 
         body { 
             font-family: 'Product Sans', 'Google Sans', sans-serif; 
@@ -41,6 +38,7 @@
             letter-spacing: 0.5px; 
             min-height: 100vh;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         .container { max-width: 650px; margin: 0 auto; }
@@ -55,6 +53,21 @@
             text-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         
+        /* Collapsible Motto Styling */
+        .motto-wrapper {
+            max-height: 100px;
+            overflow: hidden;
+            transition: max-height 0.8s ease-in-out, opacity 0.6s ease-in-out, margin 0.8s ease-in-out;
+            opacity: 1;
+        }
+
+        .motto-wrapper.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+            pointer-events: none;
+        }
+
         .motto { 
             text-align: center; 
             font-size: 1.2rem; 
@@ -153,7 +166,11 @@
 
 <div class="container">
     <h1 class="main-title">AD'S MOMENTUM</h1>
-    <p class="motto">Consistency is the only currency.</p>
+    
+    <div id="mottoWrapper" class="motto-wrapper">
+        <p class="motto">Consistency is the only currency.</p>
+    </div>
+
     <div id="quoteDisplay">"LOADING MOTIVATION..."</div>
 
     <div class="date-nav glass-panel">
@@ -214,6 +231,13 @@
     let currentViewingDate = new Date();
     currentViewingDate.setHours(0,0,0,0);
     let taskToDelete = null;
+
+    // --- Motto Auto-Collapse Logic ---
+    window.addEventListener('DOMContentLoaded', (event) => {
+        setTimeout(() => {
+            document.getElementById('mottoWrapper').classList.add('collapsed');
+        }, 1500); // 1.5 Seconds delay
+    });
 
     const momentumQuotes = [
         "Discipline is doing what needs to be done, even if you don't want to do it.",
