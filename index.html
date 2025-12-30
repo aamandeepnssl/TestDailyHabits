@@ -3,29 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AD's Tracker</title>
+    <title>AD's Momentum</title>
     <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
         :root { 
-            --bg: #121212; 
-            --panel: #1e1e1e; 
+            --bg-overlay: rgba(18, 18, 18, 0.8); /* Dark tint over the image */
+            --panel: rgba(45, 45, 45, 0.6); /* Translucent frosted glass */
             --text: #ffffff; 
             --olive: #708238; 
             --orange: #ff8c00; 
-            --grey: #333; 
+            --grey: rgba(255, 255, 255, 0.1); 
             --danger: #b91d1d;
         }
         
         body { 
             font-family: 'Product Sans', 'Google Sans', sans-serif; 
-            background: var(--bg); 
+            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
+                        url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text); 
             padding: 20px; 
             margin: 0; 
             text-transform: uppercase; 
             letter-spacing: 0.5px; 
+            min-height: 100vh;
         }
 
         .container { max-width: 650px; margin: 0 auto; }
@@ -37,6 +42,7 @@
             margin-bottom: 0px; 
             letter-spacing: 2px; 
             font-weight: 700;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         
         .motto { 
@@ -52,7 +58,7 @@
         #quoteDisplay {
             text-align: center;
             font-style: italic;
-            color: #999;
+            color: #ccc;
             margin-bottom: 30px;
             min-height: 45px;
             font-size: 0.95rem;
@@ -62,40 +68,63 @@
             font-weight: 400;
         }
         
-        .date-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 15px; border-left: 5px solid var(--olive); }
-        .nav-btn { background: var(--grey); border: none; color: white; padding: 10px 18px; cursor: pointer; font-family: inherit; transition: 0.2s; font-weight: 700; font-size: 0.8rem; border-radius: 4px; }
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: var(--panel);
+            backdrop-filter: blur(12px); /* This creates the frost effect */
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .date-nav { display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--olive); }
+        .nav-btn { background: var(--grey); border: none; color: white; padding: 10px 18px; cursor: pointer; font-family: inherit; transition: 0.2s; font-weight: 700; font-size: 0.8rem; border-radius: 8px; }
         .nav-btn:hover { background: var(--olive); }
         
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: var(--panel); padding: 15px; text-align: center; border-bottom: 3px solid var(--grey); border-radius: 8px; }
+        .stat-card { text-align: center; border-bottom: 3px solid var(--grey); padding: 15px; }
         .stat-card h3 { margin: 0; font-size: 0.8rem; color: var(--olive); font-weight: 700; }
         .stat-card span { display: block; font-size: 2.4rem; color: var(--orange); font-weight: 700; }
 
-        .add-box { background: var(--panel); padding: 25px; margin-bottom: 20px; border-radius: 8px; }
         .input-row { display: flex; width: 100%; gap: 10px; box-sizing: border-box; }
-        input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; text-transform: uppercase; border-radius: 4px; }
+        input[type="text"] { flex-grow: 1; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; text-transform: uppercase; border-radius: 8px; }
         
-        .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); border-radius: 4px; }
-        .del-btn { background: none; border: none; color: #666; cursor: pointer; font-family: inherit; font-weight: 700; padding: 5px 10px; transition: 0.3s; font-size: 0.8rem; }
-        .del-btn:hover { color: #fff; background: var(--danger); border-radius: 3px; }
+        .task-item { 
+            display: flex; 
+            align-items: center; 
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 15px; 
+            margin-bottom: 10px; 
+            justify-content: space-between; 
+            border-right: 4px solid var(--grey); 
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+        }
+        
+        .del-btn { background: none; border: none; color: #888; cursor: pointer; font-family: inherit; font-weight: 700; padding: 5px 10px; transition: 0.3s; font-size: 0.8rem; }
+        .del-btn:hover { color: #fff; background: var(--danger); border-radius: 6px; }
 
         #deleteModal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0,0,0,0.8);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(8px);
         }
-        .modal-content { background: var(--panel); padding: 35px; border: 1px solid var(--grey); text-align: center; max-width: 320px; border-radius: 12px; }
+        .modal-content { background: #1e1e1e; padding: 35px; border: 1px solid var(--grey); text-align: center; max-width: 320px; border-radius: 16px; }
         .modal-btns { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
-        .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: 700; border-radius: 4px; }
-        .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; border-radius: 4px; }
+        .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: 700; border-radius: 8px; }
+        .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; border-radius: 8px; }
 
-        .heatmap-container { background: var(--panel); padding: 20px; margin-top: 30px; border-top: 3px solid var(--orange); border-radius: 0 0 8px 8px; }
+        .heatmap-container { border-top: 3px solid var(--orange); padding: 20px; }
         .heatmap-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-top: 15px; }
-        .heat-square { aspect-ratio: 1; background: #1a1a1a; border-radius: 2px; }
+        .heat-square { aspect-ratio: 1; background: rgba(255,255,255,0.05); border-radius: 2px; }
         .level-1 { background: #2d3319; } .level-2 { background: #4b5826; } .level-3 { background: #708238; }
         
         .hidden { display: none !important; }
@@ -114,31 +143,31 @@
 </div>
 
 <div class="container">
-    <h1 class="main-title">AD'S Tracker</h1>
+    <h1 class="main-title">AD'S MOMENTUM</h1>
     <p class="motto">Consistency is the only currency.</p>
     <div id="quoteDisplay">"LOADING MOTIVATION..."</div>
 
-    <div class="date-nav">
+    <div class="date-nav glass-panel">
         <button class="nav-btn" onclick="changeDate(-1)">PREV</button>
         <h2 id="currentDateDisplay" style="margin:0; font-size: 1.1rem;">LOADING...</h2>
         <button class="nav-btn" onclick="changeDate(1)">NEXT</button>
     </div>
 
     <div class="dashboard">
-        <div class="stat-card"><h3>DAILY PROGRESS</h3><span id="dailyStat">0%</span></div>
-        <div class="stat-card"><h3>STREAK</h3><span id="streakStat">0 DAYS</span></div>
+        <div class="stat-card glass-panel"><h3>DAILY PROGRESS</h3><span id="dailyStat">0%</span></div>
+        <div class="stat-card glass-panel"><h3>STREAK</h3><span id="streakStat">0 DAYS</span></div>
     </div>
 
-    <div class="add-box">
+    <div class="add-box glass-panel">
         <div class="input-row">
             <input type="text" id="taskInput" placeholder="NEW HABIT...">
-            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: 700; white-space: nowrap; font-size: 0.8rem; border-radius: 4px;">ADD TASK</button>
+            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: 700; white-space: nowrap; font-size: 0.8rem; border-radius: 8px;">ADD TASK</button>
         </div>
         <div style="margin-top:15px;">
             <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; font-weight: 700;">
                 <input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> SET AS RECURRING?
             </label>
-            <div id="dayPicker" class="day-picker hidden" style="display:flex; justify-content:space-between; margin-top:15px; background: #000; padding: 12px; border-radius: 6px;">
+            <div id="dayPicker" class="day-picker hidden" style="display:flex; justify-content:space-between; margin-top:15px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
                 <label style="font-size:0.6rem;"><input type="checkbox" value="1"> MON</label>
                 <label style="font-size:0.6rem;"><input type="checkbox" value="2"> TUE</label>
                 <label style="font-size:0.6rem;"><input type="checkbox" value="3"> WED</label>
@@ -152,8 +181,8 @@
 
     <div id="taskList"></div>
 
-    <div class="heatmap-container">
-        <h3 style="margin-top:0; font-size: 1rem; color: var(--olive); font-weight: 700;">MOMENTUM HEATMAP (LAST 100 DAYS)</h3>
+    <div class="heatmap-container glass-panel">
+        <h3 style="margin-top:0; font-size: 1rem; color: var(--olive); font-weight: 700;">MOMENTUM HEATMAP</h3>
         <div id="heatmapGrid" class="heatmap-grid"></div>
     </div>
 </div>
@@ -371,7 +400,7 @@
                         <div class="task-item">
                             <div style="display:flex; align-items:center; gap:15px;">
                                 <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="toggleCheck(${task.id})">
-                                <span style="${isChecked ? 'text-decoration:line-through; color:#555' : ''}">${task.text}</span>
+                                <span style="${isChecked ? 'text-decoration:line-through; color:#aaa' : ''}">${task.text}</span>
                             </div>
                             <button class="del-btn" onclick="openDeleteModal(${task.id})">REMOVE</button>
                         </div>`;
