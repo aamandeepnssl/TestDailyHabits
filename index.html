@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AD's Momentum</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
@@ -19,7 +19,7 @@
         }
         
         body { 
-            font-family: 'Fira Sans Condensed', sans-serif; 
+            font-family: 'Product Sans', 'Google Sans', sans-serif; 
             background: var(--bg); 
             color: var(--text); 
             padding: 20px; 
@@ -30,52 +30,53 @@
 
         .container { max-width: 650px; margin: 0 auto; }
         
-        /* Adjusted Spacing for Title and Motto */
         h1.main-title { 
             text-align: center; 
             color: var(--orange); 
-            font-size: 2.5rem; 
-            margin-bottom: 0px; /* Removed margin to bring motto closer */
-            letter-spacing: 3px; 
+            font-size: 2.6rem; 
+            margin-bottom: 0px; 
+            letter-spacing: 2px; 
+            font-weight: 700;
         }
         
         .motto { 
             text-align: center; 
             font-size: 1.2rem; 
             color: var(--olive); 
-            margin-top: 5px; /* Tiny gap under title */
+            margin-top: 5px; 
             margin-bottom: 25px; 
             font-weight: 700;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
         }
 
         #quoteDisplay {
             text-align: center;
             font-style: italic;
-            color: #888;
+            color: #999;
             margin-bottom: 30px;
             min-height: 45px;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             padding: 0 30px;
-            line-height: 1.4;
+            line-height: 1.5;
             text-transform: none;
+            font-weight: 400;
         }
         
         .date-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 15px; border-left: 5px solid var(--olive); }
-        .nav-btn { background: var(--grey); border: none; color: white; padding: 8px 15px; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .nav-btn { background: var(--grey); border: none; color: white; padding: 10px 18px; cursor: pointer; font-family: inherit; transition: 0.2s; font-weight: 700; font-size: 0.8rem; border-radius: 4px; }
         .nav-btn:hover { background: var(--olive); }
         
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: var(--panel); padding: 15px; text-align: center; border-bottom: 3px solid var(--grey); }
-        .stat-card h3 { margin: 0; font-size: 0.9rem; color: var(--olive); }
-        .stat-card span { display: block; font-size: 2.2rem; color: var(--orange); font-weight: 700; }
+        .stat-card { background: var(--panel); padding: 15px; text-align: center; border-bottom: 3px solid var(--grey); border-radius: 8px; }
+        .stat-card h3 { margin: 0; font-size: 0.8rem; color: var(--olive); font-weight: 700; }
+        .stat-card span { display: block; font-size: 2.4rem; color: var(--orange); font-weight: 700; }
 
-        .add-box { background: var(--panel); padding: 20px; margin-bottom: 20px; }
+        .add-box { background: var(--panel); padding: 25px; margin-bottom: 20px; border-radius: 8px; }
         .input-row { display: flex; width: 100%; gap: 10px; box-sizing: border-box; }
-        input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; }
+        input[type="text"] { flex-grow: 1; padding: 12px; background: #000; border: 1px solid var(--grey); color: white; font-family: inherit; font-size: 1rem; text-transform: uppercase; border-radius: 4px; }
         
-        .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); }
-        .del-btn { background: none; border: none; color: #555; cursor: pointer; font-family: inherit; font-weight: bold; padding: 5px 10px; transition: 0.3s; }
+        .task-item { display: flex; align-items: center; background: var(--panel); padding: 15px; margin-bottom: 10px; justify-content: space-between; border-right: 4px solid var(--grey); border-radius: 4px; }
+        .del-btn { background: none; border: none; color: #666; cursor: pointer; font-family: inherit; font-weight: 700; padding: 5px 10px; transition: 0.3s; font-size: 0.8rem; }
         .del-btn:hover { color: #fff; background: var(--danger); border-radius: 3px; }
 
         #deleteModal {
@@ -87,14 +88,14 @@
             justify-content: center;
             align-items: center;
         }
-        .modal-content { background: var(--panel); padding: 35px; border: 1px solid var(--grey); text-align: center; max-width: 320px; }
+        .modal-content { background: var(--panel); padding: 35px; border: 1px solid var(--grey); text-align: center; max-width: 320px; border-radius: 12px; }
         .modal-btns { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
-        .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold; }
-        .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; }
+        .confirm-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: 700; border-radius: 4px; }
+        .cancel-btn { background: var(--grey); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: inherit; border-radius: 4px; }
 
-        .heatmap-container { background: var(--panel); padding: 20px; margin-top: 30px; border-top: 3px solid var(--orange); }
+        .heatmap-container { background: var(--panel); padding: 20px; margin-top: 30px; border-top: 3px solid var(--orange); border-radius: 0 0 8px 8px; }
         .heatmap-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-top: 15px; }
-        .heat-square { aspect-ratio: 1; background: #1a1a1a; border-radius: 1px; }
+        .heat-square { aspect-ratio: 1; background: #1a1a1a; border-radius: 2px; }
         .level-1 { background: #2d3319; } .level-2 { background: #4b5826; } .level-3 { background: #708238; }
         
         .hidden { display: none !important; }
@@ -104,7 +105,7 @@
 
 <div id="deleteModal">
     <div class="modal-content">
-        <p style="font-size: 1rem; margin: 0; letter-spacing: 1px;">ARE YOU SURE YOU WANT TO DELETE THIS TASK?</p>
+        <p style="font-size: 1rem; margin: 0; letter-spacing: 0.5px; font-weight: 700;">ARE YOU SURE YOU WANT TO DELETE THIS TASK?</p>
         <div class="modal-btns">
             <button class="confirm-btn" id="confirmDelete">YES, DELETE</button>
             <button class="cancel-btn" onclick="closeModal()">CANCEL</button>
@@ -119,7 +120,7 @@
 
     <div class="date-nav">
         <button class="nav-btn" onclick="changeDate(-1)">PREV</button>
-        <h2 id="currentDateDisplay" style="margin:0;">LOADING...</h2>
+        <h2 id="currentDateDisplay" style="margin:0; font-size: 1.1rem;">LOADING...</h2>
         <button class="nav-btn" onclick="changeDate(1)">NEXT</button>
     </div>
 
@@ -131,20 +132,20 @@
     <div class="add-box">
         <div class="input-row">
             <input type="text" id="taskInput" placeholder="NEW HABIT...">
-            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: bold; white-space: nowrap;">ADD TASK</button>
+            <button onclick="addTask()" style="background:var(--olive); color:white; border:none; padding:10px 20px; cursor:pointer; font-family:inherit; font-weight: 700; white-space: nowrap; font-size: 0.8rem; border-radius: 4px;">ADD TASK</button>
         </div>
         <div style="margin-top:15px;">
-            <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;">
+            <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; font-weight: 700;">
                 <input type="checkbox" id="isRecurring" onchange="toggleDayPicker()"> SET AS RECURRING?
             </label>
-            <div id="dayPicker" class="day-picker hidden" style="display:flex; justify-content:space-between; margin-top:15px; background: #000; padding: 10px; border-radius: 4px;">
-                <label style="font-size:0.7rem;"><input type="checkbox" value="1"> MON</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="2"> TUE</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="3"> WED</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="4"> THU</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="5"> FRI</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="6"> SAT</label>
-                <label style="font-size:0.7rem;"><input type="checkbox" value="0"> SUN</label>
+            <div id="dayPicker" class="day-picker hidden" style="display:flex; justify-content:space-between; margin-top:15px; background: #000; padding: 12px; border-radius: 6px;">
+                <label style="font-size:0.6rem;"><input type="checkbox" value="1"> MON</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="2"> TUE</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="3"> WED</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="4"> THU</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="5"> FRI</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="6"> SAT</label>
+                <label style="font-size:0.6rem;"><input type="checkbox" value="0"> SUN</label>
             </div>
         </div>
     </div>
@@ -152,7 +153,7 @@
     <div id="taskList"></div>
 
     <div class="heatmap-container">
-        <h3 style="margin-top:0; font-size: 1rem; color: var(--olive);">MOMENTUM HEATMAP (LAST 100 DAYS)</h3>
+        <h3 style="margin-top:0; font-size: 1rem; color: var(--olive); font-weight: 700;">MOMENTUM HEATMAP (LAST 100 DAYS)</h3>
         <div id="heatmapGrid" class="heatmap-grid"></div>
     </div>
 </div>
